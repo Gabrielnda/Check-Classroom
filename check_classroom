@@ -1,14 +1,17 @@
 from tkinter import *
+import tkinter as tk
+import subprocess
 
 window = Tk()
 
-## Criação da janela principal:
+# Criação da janela principal:
 
 class Application():
     def __init__(self):
         self.window = window
         self.tela()
         self.frames_da_tela()
+        self.status = StringVar()
         self.combo_sala = StringVar()
         self.botton()
         window.mainloop()
@@ -16,52 +19,93 @@ class Application():
     def tela(self):
         self.window.title("Classroom Check")                
         self.window.configure(background='#707271')
-        self.window.geometry("400x500")
+        self.window.geometry("350x500")
         self.window.resizable(False,False)
-
-## Procedimentos:
 
     def frames_da_tela(self):
         self.frame_1 = Frame(self.window, bd=4, highlightbackground= "#292421", highlightthickness=2)
-        self.frame_1.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.85)
+        self.frame_1.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.95)
+
+
+# Procedimentos:
 
     def botton(self):
 
 ## sala
-        self.sala_menu = Label(self.frame_1, text="Selecione a Sala:").grid(row=0, pady=(6,0), column=0)
+        self.sala_menu = Label(self.frame_1, text="Selecione a Sala:").grid(row=0, pady=(4,0), column=0)
         self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "Sala 101", "Sala 102", "Sala 103")
         self.sala_menu.grid(row=0, column=1)
 
+## Procedimentos
+        
+        self.tittle_Proce = Label(self.frame_1, text="Procedimentos:", font=('verdana', 8, 'bold'))
+        self.tittle_Proce.grid(row=1, pady=(15,1), column=0)
+
 ## Bitdefender
-        self.sala_menu = Label(self.frame_1, text="BitDefender:").grid(row=1, pady=(6,0), column=0)
-        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
-        self.sala_menu.grid(row=3, column=1)
+        self.antivirus_menu = Label(self.frame_1, text="BitDefender:").grid(row=2, column=0)
+        self.status = StringVar()
+        self.antivirus_menu = OptionMenu(self.frame_1, self.status, "OK", "FF", "DF")
+        self.antivirus_menu.grid(row=2, column=1)
 
 ## SCCM
-        self.sala_menu = Label(self.frame_1, text="BitDefender:").grid(row=1, pady=(6,0), column=0)
-        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
-        self.sala_menu.grid(row=3, column=1)
+        self.sccm_menu = Label(self.frame_1, text="SCCM:").grid(row=3, column=0)
+        self.status = StringVar()
+        self.sccm_menu = OptionMenu(self.frame_1, self.status, "OK", "FF", "DF")
+        self.sccm_menu.grid(row=3, column=1)
 
 ## Câmera
-        self.camera_menu = Label(self.frame_1, text="Câmera:").grid(row=2, pady=(6,0), column=1)
-        self.camera_menu = OptionMenu(self.frame_1, "OK", "FF", "DF")
-        self.camera_menu.grid(row=2, pady=(6,0), column=1)
+        self.camera_menu = Label(self.frame_1, text="Câmera:").grid(row=4, column=0)
+        self.camera = StringVar()
+        self.camera_menu = OptionMenu(self.frame_1, self.camera, "OK", "FF", "DF")
+        self.camera_menu.grid(row=4, column=1)
 ## Button Camera 
-        self.button_cam = Label(self.frame_1, text="Abrir Camera").grid(row=0, column=0)
-        self.button_cam = Button(command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_cam.grid(row=2, column=3)
-
-## Bitdefender
-        self.sala_menu = Label(self.frame_1, text="BitDefender:").grid(row=1, pady=(6,0), column=0)
-        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
-        self.sala_menu.grid(row=3, column=1)
+        self.button_cam = tk.Button(self.frame_1, text="Abrir Camera", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
+        self.button_cam.grid(row=4, column=2)
+        ## O subprocess.run() executa um comando do sistema. 
+        ## O lambda permite embutir esse comando diretamente no botão.
 
 ## GLPI 
-        self.sala_menu = Label(self.frame_1, text="GLPI:").grid(row=0, pady=(6,0), column=0)
-        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
-        self.sala_menu.grid(row=4, column=1)
+        self.glpi_menu = Label(self.frame_1, text="GLPI:").grid(row=6, column=0)
+        self.glpi_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.glpi_menu.grid(row=6, column=1)
+## Button GLPI 
+        self.button_cam = tk.Button(self.frame_1, text="Vericar GLPI", command=lambda: subprocess.run(['powershell', 'start', 'https://google.com'])) #http://localhost:62354/now
+        self.button_cam.grid(row=6, column=2)
 
+## Som
+        self.som_menu = Label(self.frame_1, text="Som:").grid(row=7, column=0)
+        self.som_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.som_menu.grid(row=7, column=1)
 
+## Projetor
+        self.video_menu = Label(self.frame_1, text="Projetor:").grid(row=8, column=0)
+        self.video_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.video_menu.grid(row=8, column=1)
+
+## Microfone
+        self.mic_menu = Label(self.frame_1, text="Microfone:").grid(row=9, column=0)
+        self.mic_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.mic_menu.grid(row=9, column=1)
+
+## Perfiféricos
+        self.peri_menu = Label(self.frame_1, text="Periféricos:").grid(row=10, column=0)
+        self.peri_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.peri_menu.grid(row=10, column=1)
+
+## Telefone
+        self.tel_menu = Label(self.frame_1, text="Telefone:").grid(row=11, column=0)
+        self.tel_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.tel_menu.grid(row=11, column=1)
+
+## Organização
+        self.org_menu = Label(self.frame_1, text="Organização:").grid(row=12, column=0)
+        self.org_menu = OptionMenu(self.frame_1, self.combo_sala, "OK", "FF", "DF")
+        self.org_menu.grid(row=12, column=1)
+
+## Observação
+        self.obs = Label(self.frame_1, text="Observações:").grid(row=13,pady=(20,0), column=0)
+        self.obs = Entry(self.frame_1)
+        self.obs.grid(row=13,pady=(20,0), column=1)
     
 
 Application()
