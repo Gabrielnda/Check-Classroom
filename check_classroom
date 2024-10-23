@@ -1,17 +1,8 @@
 from tkinter import *
 import tkinter as tk
 import subprocess
-import pandas as pd
-import os
-from openpyxl import load_workbook
-from datetime import datetime
 
 window = Tk()
-
-# Caminhos dos arquivos
-xlsx_file = '/mnt/data/Verificação de salas de aula.xlsx'
-csv_file = '/mnt/data/Verificação de salas de aula.csv'
-
 
 # Criação da janela principal:
 
@@ -22,14 +13,14 @@ class Application():
         self.frames_da_tela()
         self.status = StringVar()
         self.combo_sala = StringVar()
-        self.botton()
+        self.widgets_frame1()
+        self.action()
         window.mainloop()
-
     
     def tela(self):
         self.window.title("Classroom Check")                
         self.window.configure(background='#707271')
-        self.window.geometry("400x500")
+        self.window.geometry("600x650")
         self.window.resizable(False,False)
 
     def frames_da_tela(self):
@@ -37,187 +28,118 @@ class Application():
         self.frame_1.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.95)
 
 
-# Procedimentos:
+# Botões de Procedimentos:
 
-    def botton(self):
+    def widgets_frame1(self):
 
-## sala
-        self.sala_menu = Label(self.frame_1, text="Selecione a Sala:").grid(row=0, pady=(4,0), column=0)
-        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "Sala 101", "Sala 102", "Sala 103")
-        self.sala_menu.grid(row=0, column=1)
-
-## Procedimentos
+        ## sala
+        self.sala_menu = Label(self.frame_1, text="Selecione a Sala:", font=('Courier New',10, 'bold')).grid(row=0, pady=(8,0), column=0)
+        self.sala_menu = OptionMenu(self.frame_1, self.combo_sala, "Sala 91", "Sala 92", "Sala 81", "Sala 82", "Sala 71", "Sala 72", "Sala 61", "Sala 62", "Sala 51", "Sala 52", "Sala 41", "Sala 42")
+        self.sala_menu.grid(row=0,sticky=W,columnspan=2,pady=(8,0), column=1)
+ 
+        # Procedimentos
         
-        self.tittle_Proce = Label(self.frame_1, text="Procedimentos:", font=('verdana', 8, 'bold'))
-        self.tittle_Proce.grid(row=1, pady=(15,1), column=0)
+        self.tittle_Proce = Label(self.frame_1, text="---------------------------------------", font=('Times New Roman', 12, 'bold'))
+        self.tittle_Proce.grid(row=1,columnspan=3,sticky=W, pady=(2,1), column=0)
 
-## Bitdefender
-        self.antivirus_menu = Label(self.frame_1, text="BitDefender:").grid(row=2, column=0)
+        ## Bitdefender
+        self.antivirus_menu = Label(self.frame_1, text="BitDefender:",font=('Courier New',10,'bold')).grid(row=2,sticky=E, column=0)
         self.bit = StringVar()
         self.antivirus_menu = OptionMenu(self.frame_1, self.bit, "OK", "FF", "DF")
         self.antivirus_menu.grid(row=2, column=1)
-## Button Bitdefender
-        self.button_bit = tk.Button(self.frame_1, text="Executar Antivirús", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_bit.grid(row=2, column=2)
+        ## Button Bitdefender
+        self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
+        self.button_bit.grid(row=2,sticky=W, column=2)
+#teste1 
+        #self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run([r'C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe', '--update']))
+        #self.button_bit.grid(row=2,sticky=W, column=2)
+#teste2
+        #self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run(['powershell', '-c', r'"C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe" --update']))
+        #self.button_bit.grid(row=2,sticky=W, column=2)
 
-## SCCM
-        self.sccm_menu = Label(self.frame_1, text="SCCM:").grid(row=3, column=0)
+        
+        ## SCCM
+        self.sccm_menu = Label(self.frame_1, text="SCCM:",font=('Courier New',10,'bold')).grid(row=3,sticky=E, column=0)
         self.status = StringVar()
         self.sccm_menu = OptionMenu(self.frame_1, self.status, "OK", "FF", "DF")
         self.sccm_menu.grid(row=3, column=1)
-# Button SCCM
+        ## Button SCCM
         self.button_sccm= tk.Button(self.frame_1, text="Executar SCCM", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_sccm.grid(row=3, column=2)
+        self.button_sccm.grid(row=3,sticky=W, column=2)
 
-## Câmera
-        self.camera_menu = Label(self.frame_1, text="Câmera:").grid(row=4, column=0)
+        ## Câmera
+        self.camera_menu = Label(self.frame_1, text="Câmera:", font=('Courier New',10, 'bold')).grid(row=4,sticky=E, column=0)
         self.camera = StringVar()
         self.camera_menu = OptionMenu(self.frame_1, self.camera, "OK", "FF", "DF")
         self.camera_menu.grid(row=4, column=1)
-## Button Camera 
+        ## Button Camera 
         self.button_cam = tk.Button(self.frame_1, text="Abrir Camera", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_cam.grid(row=4, column=2)
-        ## O subprocess.run() executa um comando do sistema. 
-        ## O lambda permite embutir esse comando diretamente no botão.
+        self.button_cam.grid(row=4,sticky=W, column=2)
+                ## O subprocess.run() executa um comando do sistema. 
+                ## O lambda permite embutir esse comando diretamente no botão.
 
-## GLPI 
-        self.glpi_menu = Label(self.frame_1, text="GLPI:").grid(row=6, column=0)
+        ## GLPI 
+        self.glpi_menu = Label(self.frame_1, text="GLPI:", font=('Courier New',10, 'bold')).grid(row=6,sticky=E, column=0)
         self.glpi = StringVar()
         self.glpi_menu = OptionMenu(self.frame_1, self.glpi, "OK", "FF", "DF")
         self.glpi_menu.grid(row=6, column=1)
-## Button GLPI 
+        ## Button GLPI 
         self.button_glpi = tk.Button(self.frame_1, text="Vericar GLPI", command=lambda: subprocess.run(['powershell', 'start', 'http://localhost:62354/']))
-        self.button_glpi.grid(row=6, column=2)
+        self.button_glpi.grid(row=6,sticky=W, column=2)
 
-## Som
-        self.som_menu = Label(self.frame_1, text="Som:").grid(row=7, column=0)
+        ## Som
+        self.som_menu = Label(self.frame_1, text="Som:", font=('Courier New',10, 'bold')).grid(row=7,sticky=E,column=0)
         self.som = StringVar()
         self.som_menu = OptionMenu(self.frame_1, self.som, "OK", "FF", "DF")
         self.som_menu.grid(row=7, column=1)
-## Button som
-        self.button_som = tk.Button(self.frame_1, text="Vericar SOM", command=lambda: subprocess.run(['powershell', 'start', 'http://localhost:62354/']))
-        self.button_som.grid(row=7, column=2)
+        ## Button som
+        self.button_som = tk.Button(self.frame_1, text="Vericar SOM", command=lambda: subprocess.run(['powershell', '-c', '(New-Object Media.SoundPlayer "C:\\Windows\\Media\\chimes.wav").PlaySync();']))
+        self.button_som.grid(row=7,sticky=W, column=2)
 
-## Projetor
-        self.video_menu = Label(self.frame_1, text="Projetor:").grid(row=8, column=0)
+        ## Projetor
+        self.video_menu = Label(self.frame_1, text="Projetor:", font=('Courier New',10, 'bold')).grid(row=8,sticky=E, column=0)
         self.video = StringVar()
         self.video_menu = OptionMenu(self.frame_1, self.video, "OK", "FF", "DF")
         self.video_menu.grid(row=8, column=1)
 
-## Microfone
-        self.mic_menu = Label(self.frame_1, text="Microfone:").grid(row=9, column=0)
+        ## Microfone
+        self.mic_menu = Label(self.frame_1, text="Microfone:", font=('Courier New',10, 'bold')).grid(row=9,sticky=E, column=0)
         self.mic = StringVar()
         self.mic_menu = OptionMenu(self.frame_1, self.mic, "OK", "FF", "DF")
         self.mic_menu.grid(row=9, column=1)
 
-## Perfiféricos
-        self.peri_menu = Label(self.frame_1, text="Periféricos:").grid(row=10, column=0)
+        ## Perfiféricos
+        self.peri_menu = Label(self.frame_1, text="Periféricos:", font=('Courier New',10, 'bold')).grid(row=10,sticky=E,column=0)
         self.peri = StringVar()
         self.peri_menu = OptionMenu(self.frame_1, self.peri, "OK", "FF", "DF")
         self.peri_menu.grid(row=10, column=1)
 
-## Telefone
-        self.tel_menu = Label(self.frame_1, text="Telefone:").grid(row=11, column=0)
+        ## Telefone
+        self.tel_menu = Label(self.frame_1, text="Telefone:", font=('Courier New',10, 'bold')).grid(row=11,sticky=E,column=0)
         self.tel = StringVar()
         self.tel_menu = OptionMenu(self.frame_1, self.tel, "OK", "FF", "DF")
         self.tel_menu.grid(row=11, column=1)
 
-## Organização
-        self.org_menu = Label(self.frame_1, text="Organização:").grid(row=12, column=0)
+        ## Organização
+        self.org_menu = Label(self.frame_1, text="Organização:", font=('Courier New',10, 'bold')).grid(row=12,sticky=E,column=0)
         self.org = StringVar()
         self.org_menu = OptionMenu(self.frame_1, self.org, "OK", "FF", "DF")
-        self.org_menu.grid(row=12, column=1)
+        self.org_menu.grid(row=12,columnspan=1, column=1)
 
-## Observação
-        self.obs = Label(self.frame_1, text="Observações:").grid(row=13,pady=(20,0), column=0)
-        self.obs = Entry(self.frame_1)
-        self.obs.grid(row=13,pady=(20,0), column=1)
+        ## Observação
+        self.obs = Label(self.frame_1, text="Observações:", font=('Courier New',10, 'bold')).grid(row=13,pady=(20,0),sticky=W, column=0)
+        self.obs = Text(self.frame_1,bd = 2,width=50, height=6)
+        self.obs.grid(row=14,columnspan=6, pady=(12,0),padx=(20,0), column=0)
+
+# Botão de salvamento
+    def action(self):
+        self.bt_limpar = Button(self.frame_1, text="Salvar", bd = 3, bg = 'White', fg = 'black')
+        self.bt_limpar.grid(row=14, pady=(20,0),padx=(20,0), column=(7))
 
 
-    
 
-
+        
 
 
 Application()
 
-
-import pandas as pd
-import os
-from tkinter import Tk, Button
-from tkinter import simpledialog
-from openpyxl import load_workbook
-from datetime import datetime
-
-# Caminhos dos arquivos
-xlsx_file = '/mnt/data/Verificação de salas de aula.xlsx'
-csv_file = '/mnt/data/Verificação de salas de aula.csv'
-
-# Função para salvar os dados
-def save_data(data_dict, date):
-    # Verifica se o arquivo .xlsx já existe
-    if os.path.exists(xlsx_file):
-        # Carregar o arquivo existente
-        writer = pd.ExcelWriter(xlsx_file, engine='openpyxl')
-        book = load_workbook(xlsx_file)
-        writer.book = book
-    else:
-        # Criar um novo arquivo .xlsx
-        writer = pd.ExcelWriter(xlsx_file, engine='xlsxwriter')
-
-    # Cria um DataFrame com os dados fornecidos
-    df = pd.DataFrame([data_dict])
-
-    # Adicionar os dados na aba correspondente à data
-    sheet_name = date.strftime('%Y-%m-%d')  # Nome da aba baseado na data
-    df.to_excel(writer, sheet_name=sheet_name, index=False)
-
-    # Salva o arquivo .xlsx
-    writer.save()
-
-    # Adiciona os dados ao arquivo .csv
-    if os.path.exists(csv_file):
-        df.to_csv(csv_file, mode='a', header=False, index=False)  # Append
-    else:
-        df.to_csv(csv_file, index=False)  # Criar o arquivo
-
-    print(f"Dados salvos para a data {sheet_name} com sucesso!")
-
-# Função que captura os dados do usuário e chama save_data
-def get_user_input():
-    # Abre uma caixa de diálogo para capturar os dados necessários
-    root = Tk()
-    root.withdraw()  # Esconde a janela principal
-
-    sala = simpledialog.askstring("Entrada", "Digite o número da sala:")
-    ocupacao = simpledialog.askstring("Entrada", "Digite a ocupação da sala:")
-    status = simpledialog.askstring("Entrada", "Digite o status da sala:")
-
-    # Dados capturados
-    data_dict = {
-        "Sala": sala,
-        "Ocupação": ocupacao,
-        "Status": status
-    }
-
-    # Captura a data atual para salvar os dados na aba correspondente
-    date = datetime.now()
-
-    # Salvar os dados
-    save_data(data_dict, date)
-
-# Função para criar o botão de ação
-def create_button():
-    root = Tk()
-    root.title("Salvar Dados")
-    root.geometry("200x100")
-
-    # Botão que executa a função get_user_input
-    btn = Button(root, text="Salvar Dados", command=get_user_input)
-    btn.pack(pady=20)
-
-    root.mainloop()
-
-# Executa o programa
-if __name__ == '__main__':
-    create_button()
