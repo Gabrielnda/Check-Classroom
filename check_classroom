@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import tkinter as tk
 import subprocess
 
@@ -7,15 +8,17 @@ window = Tk()
 # Criação da janela principal:
 
 class Application():
-    def __init__(self):
+    def __init__(self, ):
         self.window = window
         self.tela()
         self.frames_da_tela()
         self.status = StringVar()
         self.combo_sala = StringVar()
         self.widgets_frame1()
+        self.executar_sccm()
         self.action()
         window.mainloop()
+        
     
     def tela(self):
         self.window.title("Classroom Check")                
@@ -48,24 +51,8 @@ class Application():
         self.antivirus_menu = OptionMenu(self.frame_1, self.bit, "OK", "FF", "DF")
         self.antivirus_menu.grid(row=2, column=1)
         ## Button Bitdefender
-        self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
+        self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run([r'C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe', '--update']))
         self.button_bit.grid(row=2,sticky=W, column=2)
-#teste1 
-        #self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run([r'C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe', '--update']))
-        #self.button_bit.grid(row=2,sticky=W, column=2)
-#teste2
-        #self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run(['powershell', '-c', r'"C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe" --update']))
-        #self.button_bit.grid(row=2,sticky=W, column=2)
-
-        
-        ## SCCM
-        self.sccm_menu = Label(self.frame_1, text="SCCM:",font=('Courier New',10,'bold')).grid(row=3,sticky=E, column=0)
-        self.status = StringVar()
-        self.sccm_menu = OptionMenu(self.frame_1, self.status, "OK", "FF", "DF")
-        self.sccm_menu.grid(row=3, column=1)
-        ## Button SCCM
-        self.button_sccm= tk.Button(self.frame_1, text="Executar SCCM", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_sccm.grid(row=3,sticky=W, column=2)
 
         ## Câmera
         self.camera_menu = Label(self.frame_1, text="Câmera:", font=('Courier New',10, 'bold')).grid(row=4,sticky=E, column=0)
@@ -77,6 +64,7 @@ class Application():
         self.button_cam.grid(row=4,sticky=W, column=2)
                 ## O subprocess.run() executa um comando do sistema. 
                 ## O lambda permite embutir esse comando diretamente no botão.
+        
 
         ## GLPI 
         self.glpi_menu = Label(self.frame_1, text="GLPI:", font=('Courier New',10, 'bold')).grid(row=6,sticky=E, column=0)
@@ -93,7 +81,7 @@ class Application():
         self.som_menu = OptionMenu(self.frame_1, self.som, "OK", "FF", "DF")
         self.som_menu.grid(row=7, column=1)
         ## Button som
-        self.button_som = tk.Button(self.frame_1, text="Vericar SOM", command=lambda: subprocess.run(['powershell', '-c', '(New-Object Media.SoundPlayer "C:\\Windows\\Media\\chimes.wav").PlaySync();']))
+        self.button_som = tk.Button(self.frame_1, text="Vericar SOM", command=lambda: subprocess.run(['powershell', '-c', '(New-Object Media.SoundPlayer "C:\\Windows\\Media\\Ring06.wav").PlaySync();']))
         self.button_som.grid(row=7,sticky=W, column=2)
 
         ## Projetor
@@ -131,6 +119,37 @@ class Application():
         self.obs = Text(self.frame_1,bd = 2,width=50, height=6)
         self.obs.grid(row=14,columnspan=6, pady=(12,0),padx=(20,0), column=0)
 
+
+    ## SCCM
+        self.sccm_menu = Label(self.frame_1, text="SCCM:",font=('Courier New',10,'bold')).grid(row=3,sticky=E, column=0)
+        self.status = StringVar()
+        self.sccm_menu = OptionMenu(self.frame_1, self.status, "OK", "FF", "DF")
+        self.sccm_menu.grid(row=3, column=1)
+        ## Button SCCM
+        self.button_sccm = tk.Button(self.frame_1, text="Executar SCCM", command=self.executar_sccm)
+        self.button_sccm.grid(row=3, sticky=tk.W, column=2)
+
+    def executar_sccm(self):
+        # Comando PowerShell que verifica e executa o ccmsetup.exe
+        script = r'''
+        $FileToDetect = "C:\Client\ccmsetup.exe"
+        if (Test-Path $FileToDetect -PathType leaf) {
+            cd 'C:\Client'
+            .\ccmsetup.exe /mp:SCCM.dominio.interno SMSSITECODE=DHC FSP=SCCM
+            Write-Output "Arquivo existe"
+        } else {
+            New-Item -ItemType directory -Path 'C:\Client'
+            Copy-Item -Path \\10.10.15.112\Client\* -Destination 'C:\Client'
+            cd 'C:\Client'
+            .\ccmsetup.exe /mp:SCCM.dominio.interno SMSSITECODE=DHC FSP=SCCM
+        }
+        '''
+        result = subprocess.run(['powershell', '-Command', script], shell=True)
+        if result.returncode == 0:
+            messagebox.showinfo("Sucesso", "O SCCM foi executado com sucesso!")
+        else:
+            messagebox.showerror("Erro", "Houve um erro ao executar o SCCM.")
+
 # Botão de salvamento
     def action(self):
         self.bt_limpar = Button(self.frame_1, text="Salvar", bd = 3, bg = 'White', fg = 'black')
@@ -142,4 +161,3 @@ class Application():
 
 
 Application()
-
