@@ -4,6 +4,7 @@ import tkinter as tk
 import subprocess
 import sqlite3
 from datetime import datetime
+import pandas as pd
 
 window = Tk()
 
@@ -18,13 +19,14 @@ class bdd():
     def desconecta_bdd(self):
         self.conn.close()
         print('Desconectando ao BDD')
-        messagebox.showinfo('Nota', 'Desconectando ao BDD')
+        
 
     def montaTabelas(self):
         self.conecta_bdd()
         # Criar tabela se não existir
         self.cursor.execute("""
                 CREATE TABLE IF NOT EXISTS verifica_sala (
+                        Data TEXT,
                         Sala TEXT,
                         Org TEXT,
                         Anti TEXT,
@@ -45,12 +47,16 @@ class bdd():
 
     def add_bdd(self):
         self.conecta_bdd()
+
+# Adiconando data
+        data_atual = datetime.now().strftime("%d-%m-%Y")
         
-        # Adicionando valores ao banco de dados
+# Adicionando valores ao banco de dados + FUNÇÃO GET PARA CORREÇÃO DO TIPO DE INFORMAÇÃO QUE É ARMAZENADA NO BDD
         self.cursor.execute(""" 
-                INSERT INTO verifica_sala (Sala, Org, Anti, SCCM, Cam, Proj, GLPI, Som, Tel, Gop, Mic, Observacoes)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
+                INSERT INTO verifica_sala (Data, Sala, Org, Anti, SCCM, Cam, Proj, GLPI, Som, Tel, Gop, Mic, Observacoes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, ( 
+            data_atual,
             self.combo_sala.get(),
             self.org.get(),
             self.bit.get(),
@@ -67,17 +73,26 @@ class bdd():
         
         self.conn.commit()
         self.desconecta_bdd()
-        messagebox.showinfo("Sucesso", "Verificação salva com sucesso!")
+
+# Exportação para excel
+    def export_to_excel(self, filename="Verificação_salas.xlsx"):
+            self.conecta_bdd()
+            query = "SELECT * FROM verifica_sala"
+            df = pd.read_sql_query(query, self.conn)  # Lê os dados do banco de dados para um DataFrame pandas
+            df.to_excel(filename, index=False)  # Salva o DataFrame como arquivo Excel
+            self.desconecta_bdd()
+
+#####
 
 # Classe da aplicação principal
 class Application(bdd):
     def __init__(self):
-        super().__init__()  # Inicializa a classe base bdd
         self.window = window
         self.tela()
         self.frames_da_tela()
+        self.action()
         
-        # Inicializando StringVar para os OptionMenu
+# Inicializando StringVar para os OptionMenu (Devido ao método que utilizei para captção dos dados precisou-se definir um sistema para que consiguisse colocar no BDD)
         self.combo_sala = StringVar()
         self.org = StringVar()
         self.bit = StringVar()
@@ -98,9 +113,8 @@ class Application(bdd):
         self.action()  # Mova esta chamada para o final
         window.mainloop()
 
-    # Restante do seu código...
-
-    # Função que chama o método add_bdd para salvar os dados no banco
+    
+# Função que chama o método add_bdd para salvar os dados no banco
     def salvar_dados(self):
         try:
             print("Salvando dados...")
@@ -109,19 +123,20 @@ class Application(bdd):
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao salvar dados: {e}")
 
+# Criação das telas
     def tela(self):
         self.window.title("Classroom Check")                
         self.window.configure(background='#707271')
-        self.window.geometry("600x650")
+        self.window.geometry("500x670")
         self.window.resizable(False,False)
 
+#Criação janela interna
     def frames_da_tela(self):
         self.frame_1 = Frame(self.window, bd=4, highlightbackground= "#292421", highlightthickness=2)
         self.frame_1.place(relx=0.02, rely=0.02, relwidth=0.96, relheight=0.95)
 
 
 # Botões de Procedimentos:
-
     def widgets_frame1(self):
 
         ## sala
@@ -142,7 +157,7 @@ class Application(bdd):
         self.antivirus_menu.grid(row=2, column=1)
         ## Button Bitdefender
         self.button_bit = tk.Button(self.frame_1, text="Atualizar Antivírus", command=lambda: subprocess.run([r'C:\Program Files\Bitdefender\Endpoint Security\EPconsole.exe', '--update']))
-        self.button_bit.grid(row=2,sticky=W, column=2)
+        self.button_bit.grid(row=2,sticky=E+W, column=2)
 
         ## Câmera
         self.camera_menu = Label(self.frame_1, text="Câmera:", font=('Courier New',10, 'bold')).grid(row=4,sticky=E, column=0)
@@ -150,20 +165,19 @@ class Application(bdd):
         self.camera_menu = OptionMenu(self.frame_1, self.camera, "OK", "FF", "DF")
         self.camera_menu.grid(row=4, column=1)
         ## Button Camera 
-        self.button_cam = tk.Button(self.frame_1, text="Abrir Camera", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
-        self.button_cam.grid(row=4,sticky=W, column=2)
+        self.button_cam = tk.Button(self.frame_1, text="Abrir Câmera", command=lambda: subprocess.run(['powershell', 'start', 'microsoft.windows.camera:']))
+        self.button_cam.grid(row=4,sticky=E+W, column=2)
                 ## O subprocess.run() executa um comando do sistema. 
                 ## O lambda permite embutir esse comando diretamente no botão.
         
-
         ## GLPI 
         self.glpi_menu = Label(self.frame_1, text="GLPI:", font=('Courier New',10, 'bold')).grid(row=6,sticky=E, column=0)
         self.glpi = StringVar()
         self.glpi_menu = OptionMenu(self.frame_1, self.glpi, "OK", "FF", "DF")
         self.glpi_menu.grid(row=6, column=1)
         ## Button GLPI 
-        self.button_glpi = tk.Button(self.frame_1, text="Vericar GLPI", command=lambda: subprocess.run(['powershell', 'start', 'http://localhost:62354/']))
-        self.button_glpi.grid(row=6,sticky=W, column=2)
+        self.button_glpi = tk.Button(self.frame_1, text="Verificar GLPI", command=lambda: subprocess.run(['powershell', 'start', 'http://localhost:62354/']))
+        self.button_glpi.grid(row=6,sticky=E+W, column=2)
 
         ## Som
         self.som_menu = Label(self.frame_1, text="Som:", font=('Courier New',10, 'bold')).grid(row=7,sticky=E,column=0)
@@ -171,8 +185,8 @@ class Application(bdd):
         self.som_menu = OptionMenu(self.frame_1, self.som, "OK", "FF", "DF")
         self.som_menu.grid(row=7, column=1)
         ## Button som
-        self.button_som = tk.Button(self.frame_1, text="Vericar SOM", command=lambda: subprocess.run(['powershell', '-c', '(New-Object Media.SoundPlayer "C:\\Windows\\Media\\Ring06.wav").PlaySync();']))
-        self.button_som.grid(row=7,sticky=W, column=2)
+        self.button_som = tk.Button(self.frame_1, text="Verificar SOM", command=lambda: subprocess.run(['powershell', '-c', '(New-Object Media.SoundPlayer "C:\\Windows\\Media\\Ring06.wav").PlaySync();']))
+        self.button_som.grid(row=7,sticky=E+W, column=2)
 
         ## Projetor
         self.video_menu = Label(self.frame_1, text="Projetor:", font=('Courier New',10, 'bold')).grid(row=8,sticky=E, column=0)
@@ -205,16 +219,19 @@ class Application(bdd):
         self.org_menu.grid(row=12,columnspan=1, column=1)
 
         ## Gopresence
-        self.go = Label(self.frame_1, text="Organização:", font=('Courier New',10, 'bold')).grid(row=13,sticky=E,column=0)
+        self.go_menu = Label(self.frame_1, text="GoPresence:", font=('Courier New',10, 'bold')).grid(row=13,sticky=E,column=0)
         self.go = StringVar()
-        self.go = OptionMenu(self.frame_1, self.go, "OK", "FF", "DF")
-        self.go.grid(row=13,columnspan=1, column=1)
+        self.go_menu = OptionMenu(self.frame_1, self.go, "OK", "FF", "DF")
+        self.go_menu.grid(row=13,columnspan=1, column=1)
 
         ## Observação
         self.obs = Label(self.frame_1, text="Observações:", font=('Courier New',10, 'bold')).grid(row=14,pady=(20,0),sticky=W, column=0)
         self.obs = Text(self.frame_1,bd = 2,width=50, height=6)
         self.obs.grid(row=15,columnspan=6, pady=(12,0),padx=(20,0), column=0)
-
+        
+        # Botão para exportar dados
+        self.bt_exportar = Button(self.frame_1, text="Exportar Dados", bd=3, bg='White', fg='black', command=self.export_to_excel)
+        self.bt_exportar.grid(row=16, pady=(20,0), sticky=E+W, padx=(15,0), column=0)
 
     ## SCCM
         self.sccm_menu = Label(self.frame_1, text="SCCM:",font=('Courier New',10,'bold')).grid(row=3,sticky=E, column=0)
@@ -223,8 +240,22 @@ class Application(bdd):
         self.sccm_menu.grid(row=3, column=1)
         ## Button SCCM
         self.button_sccm = tk.Button(self.frame_1, text="Executar SCCM", command=self.executar_sccm)
-        self.button_sccm.grid(row=3, sticky=tk.W, column=2)
+        self.button_sccm.grid(row=3, sticky=E+W, column=2)
 
+# column 3
+        ## Install antivírus
+        self.button_sccm = tk.Button(self.frame_1, text="Install", font=('Courier New',7, 'bold'), bd=3, bg='black', fg='White', command=lambda: subprocess.run(['powershell', 'start', 'e:\Instalar\Antivirús\epskit_x64.exe']))
+        self.button_sccm.grid(row=2, sticky=E, column=3)
+
+        ## Install GLPI
+        self.button_sccm = tk.Button(self.frame_1, text="Install", font=('Courier New',7, 'bold'), bd=3, bg='black', fg='White', command=lambda: subprocess.run(['powershell', 'start', 'e:\Instalar\glpi\GLPI-Agent-1.4-x64.msi']))
+        self.button_sccm.grid(row=6, sticky=E, column=3)
+
+        ## Button Forçar inventário
+        self.button_sccm = tk.Button(self.frame_1, text="Force Invent", command=lambda: subprocess.run(['powershell', 'start', 'gpupdate /force']))
+        self.button_sccm.grid(row=13, sticky=E, column=3)
+
+# Execução do script do SCCM, verificar se está funcional ainda
     def executar_sccm(self):
         # Comando PowerShell que verifica e executa o ccmsetup.exe
         script = r'''
@@ -249,17 +280,10 @@ class Application(bdd):
 
 # Botão de salvamento
     def action(self):
-        self.bt_salvar = Button(self.frame_1, text="Salvar", bd=3, bg='White', fg='black', command=self.salvar_dados)
-        self.bt_salvar.grid(row=14, pady=(20,0),sticky=E, padx=(20,0), column=7)
+        self.bt_salvar = Button(self.frame_1, text="Salvar",font=('Courier New',10, 'bold'), bd=3, bg='green', fg='White', command=self.salvar_dados)
+        self.bt_salvar.grid(row=16, pady=(20,0),sticky=E+W, padx=(0,0), column=3)
 
-    # Função que chama o método add_bdd para salvar os dados no banco
-    def salvar_dados(self):
-        try:
-            self.add_bdd()
-            messagebox.showinfo("Sucesso", "Dados salvos no banco de dados com sucesso!")
-        except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao salvar dados: {e}")
-        
+       
 
 
 Application() 
